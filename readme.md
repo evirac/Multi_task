@@ -15,8 +15,6 @@ An interactive **Gradio-based AI application** that performs multiple Natural La
 | 🖼 Image Generation     | ![Image Generation Tab](screenshots/demo_imagegen.png)   |
 | 📊 Evaluation Results   | ![Metrics Output](screenshots/demo_metrics.png)          |
 
-*(You can capture screenshots from your running app in browser and save them inside `assets/` folder.)*
-
 ---
 
 ### 🚀 **Features**
