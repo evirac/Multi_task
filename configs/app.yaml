@@ -1,0 +1,25 @@
+app:
+  title: "Multi-Task Gradio Web App"
+  theme: "default"
+  enable_tabs:
+    image_generation: true
+    summarization: true
+    sentiment_analysis: true
+    next_word_prediction: true
+
+models:
+  summarization: "facebook/bart-large-cnn"
+  sentiment: "cardiffnlp/twitter-roberta-base-sentiment"
+  nextword: "gpt2"
+  imagegen_cpu: "stabilityai/sd-turbo"
+  imagegen_gpu: "runwayml/stable-diffusion-v1-5"
+
+limits:
+  summarization_max_words: 400
+  summarization_min_length: 40
+  summarization_max_length: 150
+  max_prompt_length: 300
+
+advanced:
+  show_latency: true
+  save_outputs: true
