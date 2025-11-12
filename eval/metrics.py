@@ -1,24 +1,34 @@
-from datasets import load_metric
-import torch
-from transformers import AutoTokenizer
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-def compute_rouge(predictions, references):
-    rouge = load_metric("rouge")
-    results = rouge.compute(predictions=predictions, references=references)
-    return {k: round(v.mid.fmeasure, 4) for k, v in results.items()}
+from rouge_score import rouge_scorer
+from sklearn.metrics import accuracy_score
+import numpy as np
 
-def compute_accuracy(preds, labels):
-    correct = sum(p == l for p, l in zip(preds, labels))
-    return correct / len(preds)
 
-def compute_perplexity(model, tokenizer, texts):
-    # Small batch perplexity for language modeling tasks
-    model.eval()
-    total_loss, count = 0, 0
-    with torch.no_grad():
-        for t in texts:
-            ids = tokenizer.encode(t, return_tensors="pt")
-            loss = model(ids, labels=ids).loss.item()
-            total_loss += loss
-            count += 1
-    return torch.exp(torch.tensor(total_loss / count)).item()
+def compute_rouge_scores(predictions, references):
+    """Compute average ROUGE-L, ROUGE-1, ROUGE-2 scores."""
+    scorer = rouge_scorer.RougeScorer(["rouge1", "rouge2", "rougeL"], use_stemmer=True)
+    scores = {"rouge1": [], "rouge2": [], "rougeL": []}
+
+    for pred, ref in zip(predictions, references):
+        try:
+            score = scorer.score(ref, pred)
+            for key in scores.keys():
+                scores[key].append(score[key].fmeasure)
+        except Exception as e:
+            print(f"[WARN] Skipping a sample due to error: {e}")
+
+    # average scores
+    avg_scores = {k: float(np.mean(v)) if len(v) > 0 else 0.0 for k, v in scores.items()}
+    return avg_scores
+
+
+def compute_sentiment_accuracy(pred_labels, true_labels):
+    """Compute accuracy for sentiment classification."""
+    try:
+        return float(accuracy_score(true_labels, pred_labels))
+    except Exception as e:
+        print(f"[ERROR] Failed to compute sentiment accuracy: {e}")
+        return 0.0
